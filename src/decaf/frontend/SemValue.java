@@ -8,9 +8,13 @@ import decaf.tree.Tree.ClassDef;
 import decaf.tree.Tree.Expr;
 import decaf.tree.Tree.MethodDef;
 import decaf.tree.Tree.LValue;
+import decaf.tree.Tree.Literal;
 import decaf.tree.Tree.TopLevel;
 import decaf.tree.Tree.VarDef;
 import decaf.tree.Tree.TypeLiteral;
+import decaf.tree.Tree.Case;
+import decaf.tree.Tree.Do;
+import decaf.tree.Tree.Default;
 import decaf.utils.MiscUtils;
 
 public class SemValue {
@@ -34,13 +38,20 @@ public class SemValue {
 
 	public List<VarDef> vlist;
 
-
 	/**
 	 * statement list
 	 */
 	public List<Tree> slist;
 
 	public List<Expr> elist;
+	
+	public List<Case> caselist;
+	
+	public List<Do> doeslist;
+	
+	public Case cas;
+	
+	public Do does;
 
 	public TopLevel prog;
 
@@ -55,6 +66,10 @@ public class SemValue {
 	public Tree stmt;
 
 	public Expr expr;
+
+	public Literal constant;
+	
+	public Default defa;
 
 	public LValue lvalue;
 

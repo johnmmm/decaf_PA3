@@ -36,8 +36,9 @@ HEX_DIGIT 			= ([0-9A-Fa-f])
 HEX_INTEGER			= (0[Xx]{HEX_DIGIT}+)
 DEC_INTEGER			= ({DIGIT}+)
 INTEGER				= ({HEX_INTEGER}|{DEC_INTEGER})
+COMPLEX  			= ({INTEGER}[j])
 IDENTIFIER			= ([A-Za-z][_0-9A-Za-z]*)
-SIMPLE_OPERATOR		= ("+"|"-"|"*"|"/"|"%"|"="|"<"|">"|"."|","|";"|"!"|"("|")"|"["|"]"|"{"|"}")
+SIMPLE_OPERATOR		= ("+"|"-"|"*"|"/"|"%"|"="|"<"|">"|"."|","|";"|"!"|"("|")"|"["|"]"|"{"|"}"|":")
 S_COMMENT			= ("//"[^\r\n]*{NEWLINE})
 WHITESPACE			= ([ \t]+)
 
@@ -55,7 +56,8 @@ WHITESPACE			= ([ \t]+)
 "void"				{ return keyword(Parser.VOID);			}
 "int"				{ return keyword(Parser.INT);			}
 "bool"				{ return keyword(Parser.BOOL);			}
-"string"			{ return keyword(Parser.STRING);		}
+"complex"			{ return keyword(Parser.COMPLEX);		}
+"string"				{ return keyword(Parser.STRING);			}
 "new"				{ return keyword(Parser.NEW);			}
 "null"				{ return keyword(Parser.NULL);			}
 "class"				{ return keyword(Parser.CLASS);			}
@@ -72,6 +74,14 @@ WHITESPACE			= ([ \t]+)
 "ReadLine"			{ return keyword(Parser.READ_LINE);		}
 "static"			{ return keyword(Parser.STATIC);		}
 "instanceof"		{ return keyword(Parser.INSTANCEOF);	}
+"case"			{ return keyword(Parser.CASE);		}
+"default"		{ return keyword(Parser.DEFAULT);	}
+"super"			{ return keyword(Parser.SUPER);		}
+"dcopy"			{ return keyword(Parser.DCOPY);		}
+"scopy"			{ return keyword(Parser.SCOPY);		}
+"PrintComp"		{ return keyword(Parser.PRINTCOMP);		}
+"do"				{ return keyword(Parser.DO);			}
+"od"				{ return keyword(Parser.OD);			}
 
 	// 识别操作符的规则
 "<="				{ return operator(Parser.LESS_EQUAL);	}
@@ -80,12 +90,17 @@ WHITESPACE			= ([ \t]+)
 "!="				{ return operator(Parser.NOT_EQUAL);	}
 "&&"				{ return operator(Parser.AND);			}
 "||"				{ return operator(Parser.OR);			}
+"@"				{ return operator(Parser.RE);			}
+"$"				{ return operator(Parser.IM);			}
+"#"				{ return operator(Parser.COMPCAST);		}
+"|||"			{ return operator(Parser.DOBLOCK);		}
 {SIMPLE_OPERATOR}	{ return operator((int)yycharat(0));	}
 
 	// 识别常数的规则
 "true"				{ return boolConst(true);										}
 "false"				{ return boolConst(false);										}
 {INTEGER}			{ return intConst(yytext());			}
+{COMPLEX}			{ return imgConst(yytext());			}
 <YYINITIAL>\"		{ sloc = getLocation();		  
 					  yybegin(S);
 					  buffer = new StringBuilder();								    }

@@ -473,6 +473,14 @@ public class Translater {
 		genIntrinsicCall(Intrinsic.HALT);
 		genMark(exit);
 	}
+
+	public void genCheckDivisionByZero(Temp dividend) {
+		Label exit = Label.createLabel();
+		genBnez(dividend, exit);
+		Temp msg = genLoadStrConst(RuntimeError.DIVISION_BY_ZERO);
+		genParm(msg);
+		genIntrinsicCall(Intrinsic.PRINT_STRING);
+		genIntrinsicCall(Intrinsic.HALT);
+		genMark(exit);
+	}
 }
-
-

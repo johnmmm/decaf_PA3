@@ -152,6 +152,9 @@ public class TransPass2 extends Tree.Visitor {
 		case Tree.INT:
 			literal.val = tr.genLoadImm4(((Integer)literal.value).intValue());
 			break;
+		case Tree.COMPLEX:
+			literal.val = tr.genLoadImm4(((Integer)literal.value).intValue());
+			break;
 		case Tree.BOOL:
 			literal.val = tr.genLoadImm4((Boolean)(literal.value) ? 1 : 0);
 			break;

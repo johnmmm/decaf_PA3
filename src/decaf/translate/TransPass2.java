@@ -1,6 +1,7 @@
 package decaf.translate;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
 
 import decaf.tree.Tree;
@@ -10,6 +11,9 @@ import decaf.tree.Tree.Switch;
 import decaf.backend.OffsetCounter;
 import decaf.machdesc.Intrinsic;
 import decaf.symbol.Variable;
+import decaf.symbol.Class;
+import decaf.symbol.Symbol;
+import decaf.scope.ClassScope;
 import decaf.tac.Label;
 import decaf.tac.Temp;
 import decaf.type.BaseType;
@@ -293,6 +297,56 @@ public class TransPass2 extends Tree.Visitor {
 		scopyExpr.val = scopyExpr.value.val;
 	}
 
+	public int checkDcopyary(Temp val, Temp base, Class c) {
+		Class pa = c.getParent();
+		int size = 0;
+		if (pa != null) {
+			size = checkDcopyary(val,base, pa);
+		} else
+			size = OffsetCounter.POINTER_SIZE;
+
+		ClassScope associatedScope = c.getAssociatedScope();
+		Iterator<Symbol> iter = associatedScope.iterator();
+		while (iter.hasNext()) {
+			Symbol sym = iter.next();
+			if (sym.isVariable()) {
+				if (sym.getType().isClassType())
+				{
+					Class cla = ((ClassType)(sym.getType())).getSymbol();
+					Temp temp = tr.genDirectCall(cla.getNewFuncLabel(),
+							BaseType.INT);
+					checkDcopyary(temp,tr.genLoad(base, size) , cla);
+					tr.genStore(temp,val,size);
+					size += OffsetCounter.WORD_SIZE;
+				}else
+				{
+					tr.genStore(tr.genLoad(base, size),val,size);
+					size += OffsetCounter.WORD_SIZE;
+					if (sym.getType().equal(BaseType.COMPLEX))
+					{
+						tr.genStore(tr.genLoad(base, size),val,size);
+						size += OffsetCounter.WORD_SIZE;
+					}
+				}
+			} 
+		}
+		return size;
+	}
+
+	@Override
+	public void visitDcopy(Tree.Dcopy dcopyExpr) {
+		
+		//dcopyExpr.val = dcopyExpr.value.val;
+		//tr.genAssign(dcopyExpr, dcopyExpr.value);
+		//dcopyExpr.val = Temp.createTempI4();
+		dcopyExpr.value.accept(this);
+		//tr.genAssign(dcopyExpr.val, dcopyExpr.value.val);
+		
+		Class c = ((ClassType)((Tree.Ident)dcopyExpr.value).symbol.getType()).getSymbol();
+		dcopyExpr.val = tr.genDirectCall(c.getNewFuncLabel(), BaseType.INT);
+		checkDcopyary(dcopyExpr.val,dcopyExpr.value.val, c);
+	}
+
 	@Override
 	public void visitReadIntExpr(Tree.ReadIntExpr readIntExpr) {
 		readIntExpr.val = tr.genIntrinsicCall(Intrinsic.READ_INT);
@@ -533,6 +587,7 @@ public class TransPass2 extends Tree.Visitor {
 		switchExpr.defa.defas.accept(this);
 		tr.genAssign(switchExpr.val, switchExpr.defa.defas.val);
 		tr.genMark(switchcase);
+
 	}
 
 	@Override

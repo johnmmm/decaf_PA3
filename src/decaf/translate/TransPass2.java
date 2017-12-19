@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import decaf.tree.Tree;
 import decaf.tree.Tree.Printcomp;
+import decaf.tree.Tree.Scopy;
 import decaf.tree.Tree.Switch;
 import decaf.backend.OffsetCounter;
 import decaf.machdesc.Intrinsic;
@@ -284,6 +285,12 @@ public class TransPass2 extends Tree.Visitor {
 	@Override
 	public void visitSuper(Tree.Super superExpr) {
 		superExpr.val = currentThis;
+	}
+
+	@Override
+	public void visitScopy(Tree.Scopy scopyExpr) {
+		scopyExpr.value.accept(this);
+		scopyExpr.val = scopyExpr.value.val;
 	}
 
 	@Override

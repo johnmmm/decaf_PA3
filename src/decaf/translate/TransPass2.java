@@ -1,5 +1,6 @@
 package decaf.translate;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 import decaf.tree.Tree;
@@ -525,6 +526,35 @@ public class TransPass2 extends Tree.Visitor {
 		switchExpr.defa.defas.accept(this);
 		tr.genAssign(switchExpr.val, switchExpr.defa.defas.val);
 		tr.genMark(switchcase);
+	}
+
+	@Override
+	public void visitDoing(Tree.Doing doingStmt)
+	{
+		Label loop = Label.createLabel();
+		Label exit = Label.createLabel();
+		tr.genMark(loop);
+		loopExits.push(exit);
+
+		int dosize = doingStmt.does.size();
+		ArrayList<Label> doinglist = new ArrayList<Label>();
+		for (int i = 0; i < dosize; i++)
+		{
+			doinglist.add(Label.createLabel());
+		}
+		doinglist.add(exit);
+
+		for (int i = 0; i < dosize; i++)
+		{
+			tr.genMark(doinglist.get(i));
+			doingStmt.does.get(i).value.accept(this);
+			tr.genBeqz(doingStmt.does.get(i).value.val, doinglist.get(i+1));
+			if (doingStmt.does.get(i).doblock != null)
+				doingStmt.does.get(i).doblock.accept(this);
+			tr.genBranch(loop);
+		}
+		loopExits.pop();
+		tr.genMark(exit);
 	}
 
 	@Override

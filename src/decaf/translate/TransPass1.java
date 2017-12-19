@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import decaf.tree.Tree;
+import decaf.type.BaseType;
 import decaf.backend.OffsetCounter;
 import decaf.symbol.Class;
 import decaf.symbol.Function;
@@ -58,7 +59,10 @@ public class TransPass1 extends Tree.Visitor {
 			oc.reset();
 		}
 		for (Variable v : vars) {
-			v.setOffset(oc.next(OffsetCounter.WORD_SIZE));
+			if (v.getType().equal(BaseType.COMPLEX))
+				v.setOffset(oc.next(OffsetCounter.WORD_SIZE * 2));
+			else 
+				v.setOffset(oc.next(OffsetCounter.WORD_SIZE));
 		}
 	}
 
@@ -91,7 +95,17 @@ public class TransPass1 extends Tree.Visitor {
 			t.sym = vd.symbol;
 			t.isParam = true;
 			vd.symbol.setTemp(t);
-			vd.symbol.setOffset(oc.next(vd.symbol.getTemp().size));
+			if (vd.symbol.getType().equal(BaseType.COMPLEX))
+			{
+				vd.symbol.setOrder(order++);
+				Temp t_comp = Temp.createTempI4();
+				t_comp.sym = vd.symbol;
+				t_comp.isParam = true;
+				vd.symbol.setTempComp(t_comp);
+				vd.symbol.setOffset(oc.next(vd.symbol.getTempComp().size * 2));
+			}
+			else
+				vd.symbol.setOffset(oc.next(vd.symbol.getTemp().size));
 		}
 	}
 
@@ -99,6 +113,8 @@ public class TransPass1 extends Tree.Visitor {
 	public void visitVarDef(Tree.VarDef varDef) {
 		vars.add(varDef.symbol);
 		objectSize += OffsetCounter.WORD_SIZE;
+		if (varDef.symbol.getType().equal(BaseType.COMPLEX))
+			objectSize += OffsetCounter.WORD_SIZE;
 	}
 
 }

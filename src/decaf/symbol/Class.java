@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import decaf.Driver;
 import decaf.Location;
+import decaf.type.BaseType;
 import decaf.backend.OffsetCounter;
 import decaf.scope.ClassScope;
 import decaf.scope.GlobalScope;
@@ -167,19 +168,32 @@ public class Class extends Symbol {
 
 		ClassScope ps = associatedScope.getParentScope();
 		Iterator<Symbol> iter = associatedScope.iterator();
-		while (iter.hasNext()) {
+		while (iter.hasNext()) 
+		{
 			Symbol sym = iter.next();
-			if (sym.isVariable()) {
+			if (sym.isVariable()) 
+			{
 				sym.setOrder(numVar++);
+				if (sym.getType().equal(BaseType.COMPLEX))
+					size += OffsetCounter.WORD_SIZE;
 				size += OffsetCounter.WORD_SIZE;
-			} else if (!((Function) sym).isStatik()) {
-				if (ps == null) {
+			} 
+			
+			else if (!((Function) sym).isStatik()) 
+			{
+				if (ps == null) 
+				{
 					sym.setOrder(numNonStaticFunc++);
-				} else {
+				} 
+				else 
+				{
 					Symbol s = ps.lookupVisible(sym.name);
-					if (s == null) {
+					if (s == null) 
+					{
 						sym.setOrder(numNonStaticFunc++);
-					} else {
+					} 
+					else 
+					{
 						sym.setOrder(s.getOrder());
 					}
 				}

@@ -58,10 +58,12 @@ public class Translater {
 			pw.println("}");
 			pw.println();
 		}
+		// System.out.println(funcs.toString());
 		for (Functy ft : funcs) {
 			pw.println("FUNCTION(" + ft.label.name + ") {");
 			pw.println(ft.paramMemo);
 			Tac tac = ft.head;
+			// System.out.println("~~~~~~~~~~~~~");
 			while (tac != null) {
 				if (tac.opc == Tac.Kind.MARK) {
 					pw.println(tac);
@@ -69,6 +71,9 @@ public class Translater {
 					pw.println("    " + tac);
 				}
 				tac = tac.next;
+				// System.out.println(tac==null);
+				// if(tac!=null)
+				// 	System.out.println(tac.toString());
 			}
 			pw.println("}");
 			pw.println();
@@ -115,6 +120,12 @@ public class Translater {
 			Temp t = v.getTemp();
 			t.offset = v.getOffset();
 			sb.append(t.name + ":" + t.offset + " ");
+			if (v.getTempComp() != null)
+			{
+				Temp t_comp = v.getTempComp();
+				t_comp.offset = v.getOffset() + OffsetCounter.WORD_SIZE;
+				sb.append(t_comp.name + ":" + t_comp.offset + " ");
+			}
 		}
 		if (sb.length() > 0) {
 			return Tac.genMemo(sb.substring(0, sb.length() - 1));

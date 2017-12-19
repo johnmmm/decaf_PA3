@@ -741,7 +741,8 @@ public abstract class Tree {
     public abstract static class Expr extends Tree {
 
     	public Type type;
-    	public Temp val;
+        public Temp val;
+        public Temp comp_val; //used to record xxj in complex
     	public boolean isClass;
     	public boolean usedForRef;
     	

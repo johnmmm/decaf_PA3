@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import decaf.tree.Tree;
 import decaf.tree.Tree.Printcomp;
+import decaf.tree.Tree.Switch;
 import decaf.backend.OffsetCounter;
 import decaf.machdesc.Intrinsic;
 import decaf.symbol.Variable;
@@ -505,6 +506,25 @@ public class TransPass2 extends Tree.Visitor {
 		tr.genBranch(loop);
 		loopExits.pop();
 		tr.genMark(exit);
+	}
+
+	@Override
+	public void visitSwitch(Tree.Switch switchExpr) 
+	{
+		switchExpr.state.accept(this);
+		Label switchcase = Label.createLabel();
+		switchExpr.val = Temp.createTempI4();
+		for (Tree.Case d : switchExpr.cases)
+		{
+			d.value.accept(this);
+			d.caseblock.accept(this);
+			tr.genAssign(switchExpr.val, d.caseblock.val);
+			d.val = tr.genEqu(d.value.val, switchExpr.state.val);
+			tr.genBnez(d.val, switchcase);
+		}
+		switchExpr.defa.defas.accept(this);
+		tr.genAssign(switchExpr.val, switchExpr.defa.defas.val);
+		tr.genMark(switchcase);
 	}
 
 	@Override

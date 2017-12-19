@@ -1405,7 +1405,7 @@ public abstract class Tree {
     	}
     }
     
-    public static class Case extends Tree {
+    public static class Case extends Expr {
     	public Literal value;
     	public Expr caseblock;
     	
